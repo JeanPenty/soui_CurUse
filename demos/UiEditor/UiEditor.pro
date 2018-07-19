@@ -13,19 +13,18 @@ INCLUDEPATH += . \
 		../../components \
 		../../config \
 		../../controls.extend \
-		../../third-part/SciLexer/include \
+		../../third-part/Scintilla/include \
 
 
 dir = ../..
 include($$dir/common.pri)
 
-system(copy "..\..\third-part\SciLexer\bin\SciLexer.dll" "..\..\bin\SciLexer.dll")
 
 CONFIG(debug,debug|release){
-	LIBS += utilitiesd.lib souid.lib
+	LIBS += utilitiesd.lib souid.lib Scintillad.lib imm32.lib
 }
 else{
-	LIBS += utilities.lib soui.lib
+	LIBS += utilities.lib soui.lib Scintilla.lib imm32.lib
 }
 
 PRECOMPILED_HEADER = stdafx.h
@@ -48,10 +47,9 @@ SOURCES+=../../controls.extend/STabCtrl2.cpp
 SOURCES+=../../controls.extend/SText.cpp
 SOURCES+=../../controls.extend/STurn3DView.cpp
 SOURCES+=../../controls.extend/SScrollText.cpp
+SOURCES+=../../controls.extend/SRealWndHandler_Scintilla.cpp
+SOURCES+=../../controls.extend/ScintillaWnd.cpp
 
-HEADERS+=../../controls.extend/image3d/3dlib.h
-HEADERS+=../../controls.extend/image3d/3dmatrix.h
-HEADERS+=../../controls.extend/image3d/3dTransform.h
 
 SOURCES+=./DesignerView.cpp
 SOURCES+=./SDesignerRoot.cpp
@@ -63,13 +61,11 @@ SOURCES+=./DlgNewSkin.cpp
 SOURCES+=./DlgSkinSelect.cpp
 SOURCES+=./DlgStyleManage.cpp
 SOURCES+=./MainDlg.cpp
-SOURCES+=./ScintillaWnd.cpp
 SOURCES+=./SImageSwitcher.cpp
 SOURCES+=./SMoveWnd.cpp
 SOURCES+=./SSwitch.cpp
 SOURCES+=./SToolbox.cpp
 SOURCES+=./UIEditor.cpp
-SOURCES+=./SouiRealWndHandler.cpp
 SOURCES+=./propgrid/SPropertyGrid.cpp
 SOURCES+=./propgrid/propitem/SPropertyItem-Color.cpp
 SOURCES+=./propgrid/propitem/SPropertyItem-Option.cpp
@@ -82,6 +78,7 @@ SOURCES+=./colorpicker/SColorPicker.cpp
 SOURCES+=./DlgFontSelect.cpp
 SOURCES+=./helpapi.cpp
 SOURCES+=./SImgCanvas.cpp
+
 
 HEADERS+=./SListBoxDrop.h
 HEADERS+=./Adapter.h
@@ -98,12 +95,10 @@ HEADERS+=./DlgSkinSelect.h
 HEADERS+=./DlgStyleManage.h
 HEADERS+=./MainDlg.h
 HEADERS+=./resource.h
-HEADERS+=./ScintillaWnd.h
 HEADERS+=./SImageSwitcher.h
 HEADERS+=./SMoveWnd.h
 HEADERS+=./SSwitch.h
 HEADERS+=./SToolbox.h
-HEADERS+=./SouiRealWndHandler.h
 HEADERS+=./propgrid/SPropertyEmbedWndHelper.hpp
 HEADERS+=./propgrid/SPropertyGrid.h
 HEADERS+=./propgrid/propitem/SPropertyItem-Color.h
@@ -135,3 +130,9 @@ HEADERS+=../../controls.extend/STabCtrl2.h
 HEADERS+=../../controls.extend/SText.h
 HEADERS+=../../controls.extend/STurn3DView.h
 HEADERS+=../../controls.extend/SScrollText.h
+HEADERS+=../../controls.extend/image3d/3dlib.h
+HEADERS+=../../controls.extend/image3d/3dmatrix.h
+HEADERS+=../../controls.extend/image3d/3dTransform.h
+HEADERS+=../../controls.extend/SRealWndHandler_Scintilla.h
+HEADERS+=../../controls.extend/ScintillaWnd.h
+

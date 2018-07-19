@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace SOUI
 {
@@ -12,10 +12,9 @@ namespace SOUI
 
 		SLayoutSize();
 
+		SLayoutSize(float fSize,Unit unit);
 		float fSize;
 		Unit  unit;
-
-		ORIENTATION orientation;
 
 		void setWrapContent();
 		bool isWrapContent() const;
@@ -38,8 +37,11 @@ namespace SOUI
 		void parseString(const SStringW & strSize);
 
 		SLayoutSize & operator = (const SLayoutSize & src);
+		
+		bool valueEqual(float value);
 
 		static SLayoutSize fromString(const SStringW & strSize);
+		static bool fequal(float a, float b);
 	};
 
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #pragma warning(disable:4251)
 
 #include "SResProviderZip.h"
@@ -27,14 +27,14 @@ namespace SOUI{
 		if(!m_zipFile.GetFile(strPath,zf)) return NULL;
 
 		HDC hDC = GetDC(NULL);
-		//��ȡλͼͷ
+		//读取位图头
 		BITMAPFILEHEADER *pBmpFileHeader=(BITMAPFILEHEADER *)zf.GetData(); 
-		//���λͼͷ
+		//检测位图头
 		if (pBmpFileHeader->bfType != ((WORD) ('M'<<8)|'B')) 
 		{
 			return NULL; 
 		} 
-		//�ж�λͼ����
+		//判断位图长度
 		if (pBmpFileHeader->bfSize > (UINT)zf.GetSize()) 
 		{ 
 			return NULL; 
@@ -116,7 +116,13 @@ namespace SOUI{
     {
         ZIPRES_PARAM *zipParam=(ZIPRES_PARAM*)wParam;
         m_renderFactory = zipParam->pRenderFac;
-        
+		m_childDir = zipParam->pszChildDir;
+		if (!m_childDir.IsEmpty())
+		{
+			m_childDir.TrimRight(_T('\\'));
+			m_childDir.TrimRight(_T('/'));
+			m_childDir += _T("\\");
+		}
         if(zipParam->type == ZIPRES_PARAM::ZIPFILE)
             return _Init(zipParam->pszZipFile,zipParam->pszPsw);
         else
@@ -167,7 +173,7 @@ namespace SOUI{
 	BOOL SResProviderZip::_LoadSkin()
 	{
 		CZipFile zf;
-		BOOL bIdx=m_zipFile.GetFile(UIRES_INDEX,zf);
+		BOOL bIdx=m_zipFile.GetFile(m_childDir+UIRES_INDEX,zf);
 		if(!bIdx) return FALSE;
 
 		pugi::xml_document xmlDoc;
@@ -182,7 +188,7 @@ namespace SOUI{
             while(resFile)
             {
                 SResID id(S_CW2T(resType.name()),S_CW2T(resFile.attribute(L"name").value()));
-                m_mapFiles[id] = S_CW2T(resFile.attribute(L"path").value());
+                m_mapFiles[id] = m_childDir + S_CW2T(resFile.attribute(L"path").value());
                 resFile=resFile.next_sibling();
             }
             resType = resType.next_sibling();

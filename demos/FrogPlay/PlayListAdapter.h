@@ -1,8 +1,10 @@
-#pragma once
+Ôªø#pragma once
 #include "stdafx.h"
 #include <helper/SAdapterBase.h>
 #include "FilesHelp.h"
 #include <algorithm>
+#include <helper/SCriticalSection.h>
+
 class CPlayListWnd : public SMcAdapterBase
 {
 public:
@@ -11,6 +13,7 @@ public:
 	}
 	virtual int getCount()
 	{
+		SAutoLock lock(m_cs);
 		return m_db.GetCount();
 	}
 	virtual void getView(int position, SWindow * pItem, pugi::xml_node xmlTemplate)
@@ -19,17 +22,20 @@ public:
 		{
 			pItem->InitFromXml(xmlTemplate);
 		}
+		m_cs.Enter();
 		PlaylistInfo info = m_db[position];
+		m_cs.Leave();
 		SStatic *pBtnsave = pItem->FindChildByName2<SStatic>(L"filename");
-		pBtnsave->SetWindowTextW(SStringT().Format(L"°æ%02d°ø%s", position+1,info.m_name));
+		pBtnsave->SetWindowTextW(SStringT().Format(L"„Äê%02d„Äë%s", position+1,info.m_name));
 		pBtnsave->SetAttribute(L"tip", S_CT2W(info.m_name));
 		pItem->SetUserData(position);
 		pItem->GetEventSet()->subscribeEvent(EventItemPanelDbclick::EventID, Subscriber(&CPlayListWnd::OnButtonDbclick, this));
 
 	}
 
-	bool OnButtonDbclick(EventArgs *pEvt)//≤•∑≈Œƒº˛
+	bool OnButtonDbclick(EventArgs *pEvt)//Êí≠ÊîæÊñá‰ª∂
 	{
+		SAutoLock lock(m_cs);
 		SWindow *btn = sobj_cast<SWindow>(pEvt->sender);
 		SStringT  _pathname = m_db[btn->GetUserData()].m_FULL_Path;
 		m_Play_index=btn->GetUserData();
@@ -38,14 +44,16 @@ public:
 	}
 	void ADD_files(SStringT  m_path)
 	{
+		SAutoLock lock(m_cs);
 		PlaylistInfo info;
 		info.m_FULL_Path = m_path;
 		info.m_file_size = CFileHelp::FileSizeToString(CFileHelp::GetFileSize(m_path));
 		CFileHelp::SplitPathFileName(m_path, info.m_name, info.m_ext);
 		m_db.Add(info);
 	}
-	void Dll_File(int _items)
+	void Del_File(int _items)
 	{
+		SAutoLock lock(m_cs);
 		m_db.RemoveAt(_items);
 		if(m_Play_index> (int)m_db.GetCount()-1)
 			m_Play_index=m_db.GetCount()-1;
@@ -55,6 +63,7 @@ public:
 	
 	void DELL_ALL()
 	{
+		SAutoLock lock(m_cs);
 		m_db.RemoveAll();
 		m_Play_index=-1;
 		notifyDataSetChanged();
@@ -70,14 +79,16 @@ public:
 	}
 	SStringT Get_index_Path(int items)
 	{
+		SAutoLock lock(m_cs);
 		return m_db[items].m_FULL_Path;
 	}
 	struct SORTCTX
 	{
 		int iCol;
 	};
-	void Sort_Play_list(int id)//≈≈–Ú
+	void Sort_Play_list(int id)//ÊéíÂ∫è
 	{
+		SAutoLock lock(m_cs);
 		SORTCTX ctx = { 1 };
 		if(id==1)
 			qsort_s(m_db.GetData(), m_db.GetCount(), sizeof(m_db), SortCmp_name, &ctx);
@@ -120,4 +131,5 @@ private:
 	
 	SArray<PlaylistInfo> m_db;
 	int m_Play_index;
+	SCriticalSection m_cs;
 };

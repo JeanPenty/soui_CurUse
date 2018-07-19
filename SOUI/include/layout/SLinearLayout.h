@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "interface/slayout-i.h"
 #include "SLinearLayoutParamStruct.h"
@@ -60,16 +60,13 @@ namespace SOUI
 
     };
 
-    class SLinearLayout : public SObjectImpl<TObjRefImpl<ILayout>>
+    class SOUI_EXP SLinearLayout : public SObjectImpl<TObjRefImpl<ILayout>>
     {
 		SOUI_CLASS_NAME_EX(SLinearLayout,L"linearLayout",Layout)
     public:
         SLinearLayout(void);
         ~SLinearLayout(void);
 
-		static HRESULT CreateLayoutParam(IObjRef ** ppObj);
-
-		virtual LayoutType GetLayoutType() const {return Layout_Linear;}
         virtual void LayoutChildren(SWindow * pParent);
         virtual ILayoutParam * CreateLayoutParam() const;
 		virtual CSize MeasureChildren(SWindow * pParent,int nWidth,int nHeight) const;

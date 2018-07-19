@@ -1,18 +1,18 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "DlgFontSelect.h"
 #include "CDebug.h"
 
 namespace SOUI
 {
 
-	SDlgFontSelect::SDlgFontSelect(SStringT strFont,SDesignerView *pDesignerView):SHostDialog(_T("LAYOUT:×ÖÌåÑ¡Ôñ"))
+	SDlgFontSelect::SDlgFontSelect(SStringT strFont,SDesignerView *pDesignerView):SHostDialog(_T("LAYOUT:å­—ä½“é€‰æ‹©"))
 	{
 		strFont.TrimBlank();
 		m_strFont = strFont;
 		m_pDesignerView = pDesignerView;
 	}
 
-	//TODO:ÏûÏ¢Ó³Éä
+	//TODO:æ¶ˆæ¯æ˜ å°„
 	void SDlgFontSelect::OnCancel()
 	{
 		SHostDialog::OnCancel();
@@ -93,7 +93,7 @@ namespace SOUI
 		SStringT strLbText;
 		for (int i = 0; i < lb->GetCount(); i ++)
 		{
-			lb->GetText(i, strLbText);
+			strLbText = lb->GetText(i);
 			if (strLbText.CompareNoCase(strText) == 0)
 			{
 				n = i;
@@ -200,8 +200,7 @@ namespace SOUI
 			return _T("");
 		}
 
-		SStringT strFontName;
-		m_LbFont->GetText(n, strFontName);
+		SStringT strFontName = m_LbFont->GetText(n);
 		strFontName = strFontName.Format(_T("face:%s"), strFontName);
 
 		if (m_chkBold->IsChecked())

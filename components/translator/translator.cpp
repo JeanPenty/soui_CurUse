@@ -1,10 +1,11 @@
-// translator.cpp : Defines the exported functions for the DLL application.
+ï»¿// translator.cpp : Defines the exported functions for the DLL application.
 //
 
 #include "stdafx.h"
 #include "translator.h"
 #include <search.h>
 #include <ObjBase.h>
+#include <tchar.h>
 
 using namespace pugi;
 
@@ -157,6 +158,20 @@ namespace SOUI
         }
         
         qsort(m_arrEntry->GetData(),m_arrEntry->GetCount(),sizeof(SStrMapEntry*),SStrMapEntry::Compare);
+
+
+		//åŠ è½½å­—ä½“æ›´æ¢ä¿¡æ¯
+		pugi::xml_node nodeFonts = xmlLang.child(L"fonts");
+		pugi::xml_node nodeFont = nodeFonts.child(L"font");
+		while(nodeFont)
+		{
+			SStringW strName = nodeFont.attribute(L"name").as_string();
+			TrFontInfo info;
+			info.lfCharset =charsetFromString(nodeFont.attribute(L"charset").as_string());
+			info.strFaceName = nodeFont.attribute(L"face").as_string();
+			m_mapFonts[strName] = info;
+			nodeFont = nodeFont.next_sibling(L"font");
+		}
         return TRUE;
     }
 
@@ -167,16 +182,64 @@ namespace SOUI
         {
             SStrMap ** pMap=(SStrMap**)bsearch(&strSrc,(*pEntry)->m_arrStrMap.GetData(),(*pEntry)->m_arrStrMap.GetCount(),sizeof(SStrMap*),SStrMap::CompareInSearch);
             if(pMap)
-            {//´ÓÖ¸¶¨µÄÉÏÏÂÎÄÖÐ²éÕÒ·­Òë
+            {//ä»ŽæŒ‡å®šçš„ä¸Šä¸‹æ–‡ä¸­æŸ¥æ‰¾ç¿»è¯‘
                 strRet=(*pMap)->strTranslation;
                 return TRUE;
-            }else if(!strCtx.IsEmpty())
-            {//´Ó¿Õ°×ÉÏÏÂÎÄÖÐ²éÕÒ
-                return tr(strSrc,SStringW(),strRet);
             }
         }
+		if(!strCtx.IsEmpty())
+		{//ä»Žç©ºç™½ä¸Šä¸‹æ–‡ä¸­æŸ¥æ‰¾
+			return tr(strSrc,SStringW(),strRet);
+		}
         return FALSE;
     }
+
+	BOOL STranslator::updateLogfont(const SStringW & strName,LOGFONT *pFont)
+	{
+		if(!m_mapFonts.Lookup(strName))
+			return FALSE;
+		TrFontInfo trFontInfo = m_mapFonts[strName];
+		SASSERT(trFontInfo.strFaceName.GetLength()<LF_FACESIZE);
+		pFont->lfCharSet = trFontInfo.lfCharset;
+		_tcscpy(pFont->lfFaceName,trFontInfo.strFaceName);
+		return TRUE;
+	}
+
+	BYTE STranslator::charsetFromString(const SStringW & strCharset) const
+	{
+		const struct {
+			wchar_t name[40];
+			BYTE    value;
+		}CharsetMap []={
+			{L"ANSI",0},
+			{L"DEFAULT",1},
+			{L"SYMBOL",2},
+			{L"SHIFTJIS",128},
+			{L"HANGEUL",129},
+			{L"HANGUL",129},
+			{L"GB2312",134},
+			{L"CHINESEBIG5",136},
+			{L"OEM",255},
+			{L"JOHAB",130},
+			{L"HEBREW",177},
+			{L"ARABIC",178},
+			{L"GREEK",161},
+			{L"TURKISH",162},
+			{L"VIETNAMESE",163},
+			{L"THAI",222},
+			{L"EASTEUROPE",238},
+			{L"RUSSIAN",204},
+			{L"MAC",77},
+			{L"BALTIC",186}
+		};
+		
+			for(int i=0;i<ARRAYSIZE(CharsetMap);i++)
+			{
+				if(strCharset.CompareNoCase(CharsetMap[i].name) == 0)
+					return CharsetMap[i].value;
+			}
+			return _wtoi(strCharset);
+	}
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -275,6 +338,12 @@ namespace SOUI
 	SStringW STranslatorMgr::GetLanguage() const
 	{
 		return m_strLang;
+	}
+
+	BOOL STranslatorMgr::updateLogfont(const SStringW & strName,LOGFONT * pfont)
+	{
+		if(m_lstLang->IsEmpty()) return FALSE;
+		return m_lstLang->GetHead()->updateLogfont(strName,pfont);
 	}
 
     //////////////////////////////////////////////////////////////////////////

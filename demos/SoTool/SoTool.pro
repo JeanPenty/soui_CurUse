@@ -30,6 +30,9 @@ PRECOMPILED_HEADER = stdafx.h
 
 # Input
 HEADERS += 2UnicodeHandler.h \
+	   DragDrop.h\
+	   export_table_adapter.h\
+	   import_table_adapter.h\
            CalcMd5Handler.h \
            CodeLineCounter.h \
            CodeLineCounterHandler.h \
@@ -45,6 +48,10 @@ HEADERS += 2UnicodeHandler.h \
            SImgCanvas.h \
            STreeList.h \
            FileMap.h \
+		   STabCtrlEx.h\
+		   CWindowHelperHander.h\
+		   SwndFrame.h\
+		   SCaptureButton.h\
            IconvWorker.h
            
 SOURCES += 2UnicodeHandler.cpp \
@@ -62,6 +69,10 @@ SOURCES += 2UnicodeHandler.cpp \
            SoTool.cpp \
            STreeList.cpp \
            FileMap.cpp \
+		   STabCtrlEx.cpp\
+		   CWindowHelperHander.cpp\
+		   SwndFrame.cpp\
+		   SCaptureButton.cpp\
            IconvWorker.cpp
 
 RC_FILE += sotool.rc

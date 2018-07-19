@@ -1,4 +1,4 @@
-#include "include\souistd.h"
+Ôªø#include "include\souistd.h"
 #include "res.mgr\SUiDef.h"
 #include "helper\SplitString.h"
 #include "helper\mybuffer.h"
@@ -11,7 +11,7 @@ namespace SOUI{
 	const static WCHAR KNodeSkin[]      = L"skin";
 	const static WCHAR KNodeStyle[]     = L"style";
 	const static WCHAR KNodeObjAttr[]   = L"objattr";
-	const static TCHAR KDefFontFace[]   = _T("ÀŒÃÂ");
+	const static TCHAR KDefFontFace[]   = _T("ÂÆã‰Ωì");
 
 
 	static pugi::xml_node GetSourceXmlNode(pugi::xml_node nodeRoot,pugi::xml_document &docInit,IResProvider *pResProvider, const wchar_t * pszName)
@@ -21,13 +21,13 @@ namespace SOUI{
 		{
 			pugi::xml_attribute attrSrc = nodeData.attribute(L"src",false);
 			if(attrSrc)
-			{//”≈œ»¥”src Ù–‘¿ÔªÒ»° ˝æ›
+			{//‰ºòÂÖà‰ªésrcÂ±ûÊÄßÈáåËé∑ÂèñÊï∞ÊçÆ
 				SStringT strSrc = S_CW2T(attrSrc.value());
 				SStringTList strList;
 				if(2==ParseResID(strSrc,strList))
 				{
 					CMyBuffer<char> strXml;
-					DWORD dwSize = pResProvider->GetRawBufferSize(strList[0],strList[1]);
+					size_t dwSize = pResProvider->GetRawBufferSize(strList[0],strList[1]);
 
 					strXml.Allocate(dwSize);
 					pResProvider->GetRawBuffer(strList[0],strList[1],strXml,dwSize);
@@ -72,7 +72,7 @@ namespace SOUI{
 			SLOGFMTW(_T("warning!!!! Add ResProvider Error."));
 		}
 
-		DWORD dwSize=pResProvider->GetRawBufferSize(strUiDef[0],strUiDef[1]);
+		size_t dwSize=pResProvider->GetRawBufferSize(strUiDef[0],strUiDef[1]);
 		if(dwSize==0)
 		{
 			SLOGFMTW(_T("warning!!!! uidef was not found in the specified resprovider"));
@@ -110,8 +110,9 @@ namespace SOUI{
 						fontStyle.attr.fUnderline = xmlFont.attribute(L"underline").as_bool(false);
 						fontStyle.attr.fStrike = xmlFont.attribute(L"strike").as_bool(false);
 						fontStyle.attr.fItalic = xmlFont.attribute(L"italic").as_bool(false);
-						
-						defFontInfo.dwStyle = fontStyle.dwStyle;
+						fontStyle.attr.byWeight = (xmlFont.attribute(L"weight").as_uint(0) + 2) / 4; //scale weight from [0-1000] to [0,250].
+						defFontInfo.strName = xmlFont.attribute(L"name").as_string(L"default");
+						defFontInfo.style = fontStyle;
 						defFontInfo.strFaceName = S_CW2T(xmlFont.attribute(L"face").value());
 
 						if(defFontInfo.strFaceName.IsEmpty() || !SUiDef::CheckFont(defFontInfo.strFaceName))
@@ -122,8 +123,10 @@ namespace SOUI{
 					{
 						fontStyle.attr.cSize = 12;
 						fontStyle.attr.byCharset =DEFAULT_CHARSET;
+						
 
-						defFontInfo.dwStyle = fontStyle.dwStyle;
+						defFontInfo.strName = L"default";
+						defFontInfo.style = fontStyle;
 						defFontInfo.strFaceName = KDefFontFace;
 					}
 
@@ -201,7 +204,7 @@ namespace SOUI{
 
 	static BOOL DefFontCheck(const SStringT & strFontName)
 	{
-		//»∑±£◊÷ÃÂ¥Ê‘⁄
+		//Á°Æ‰øùÂ≠ó‰ΩìÂ≠òÂú®
 		HDC hdc = GetDC(NULL);
 		int hasFont = EnumFonts(hdc,strFontName,DefFontsEnumProc,0);
 		ReleaseDC(NULL,hdc);

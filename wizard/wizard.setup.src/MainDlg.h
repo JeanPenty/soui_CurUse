@@ -30,11 +30,65 @@ public:
 
 	CString m_strWizardDir;//数据目录
 
+	typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+	LPFN_ISWOW64PROCESS fnIsWow64Process;
+
+	BOOL IsWow64()
+	{
+		BOOL bIsWow64 = FALSE;
+
+		//IsWow64Process is not available on all supported versions of Windows.
+		//Use GetModuleHandle to get a handle to the DLL that contains the function
+		//and GetProcAddress to get a pointer to the function if available.
+
+		fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+			GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+		if (NULL != fnIsWow64Process)
+		{
+			if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64))
+			{
+				//handle error
+			}
+		}
+		return bIsWow64;
+	}
+
 	CString GetVSDir(LPCTSTR pszEnvName)
 	{
+		if (_tcscmp(_T("VS141COMNTOOLS"), pszEnvName) == 0)
+			return GetVS2017Dir(pszEnvName);
+
 		CString strRet;
 		strRet.GetEnvironmentVariable(pszEnvName);
 		if(!strRet.IsEmpty()) strRet=strRet.Left(strRet.GetLength()-14);//14=length("Common7\Tools\")
+		return strRet;
+	}
+
+	CString GetVS2017Dir(LPCTSTR pszEnvName)
+	{
+		const WCHAR *wowkey[2] = {LR"(SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7)",
+			LR"(SOFTWARE\Microsoft\VisualStudio\SxS\VS7)"};
+
+		CString strRet;
+		HKEY hKey;
+		LSTATUS ec = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+								  IsWow64() ? wowkey[0] : wowkey[1],
+								  0,
+								  KEY_READ, &hKey);
+		if (ec == ERROR_SUCCESS)
+		{
+			DWORD dwType = REG_SZ;
+			DWORD dwSize = MAX_PATH;
+			wchar_t data[MAX_PATH] = { 0 };
+			if (ERROR_SUCCESS == RegQueryValueEx(hKey, L"15.0", 0, &dwType, (LPBYTE)data, &dwSize))
+			{
+				strRet = data;
+				strRet += LR"(Common7\IDE\)";
+			}
+			RegCloseKey(hKey);
+		}
+
 		return strRet;
 	}
 
@@ -146,7 +200,8 @@ public:
 		CListViewCtrl vslist;
 		vslist.Attach(GetDlgItem(IDC_VSLIST));
 
-		if(GetFileAttributes(_T("SouiWizard"))==INVALID_FILE_ATTRIBUTES)
+		if(GetFileAttributes(_T("SouiWizard"))==INVALID_FILE_ATTRIBUTES
+		   || GetFileAttributes(_T("SouiDllWizard"))==INVALID_FILE_ATTRIBUTES)
 		{
 			MessageBox(_T("当前目录下没有找到SOUI的向导数据"),_T("错误"),MB_OK|MB_ICONSTOP);
 			return 0;
@@ -221,6 +276,7 @@ public:
 				_tcscpy(szFrom,_T("entry\\*.*"));
 				_tcscpy(szTo,pCfg->strVsDir);
 				_tcscat(szTo,pCfg->strDataTarget);
+				_tcscat(szTo,_T("\\Soui"));
 				bOK = 0==SHFileOperation(&shfo);
 			}
 			//改写SouiWizard.vsz
@@ -230,7 +286,7 @@ public:
 				_tcscat(szFrom,_T("\\SouiWizard.vsz"));
 				_tcscpy(szTo,pCfg->strVsDir);
 				_tcscat(szTo,pCfg->strEntryTarget);
-                _tcscat(szTo,_T("\\SouiWizard.vsz"));
+                _tcscat(szTo,_T("\\Soui\\SouiWizard.vsz"));
 				
 				CopyFile(szFrom,szTo,FALSE);
 								
@@ -250,6 +306,35 @@ public:
                         fwrite((LPCSTR)str,1,str.GetLength(),f);
                         fclose(f);
                     }
+				}
+			}
+
+			//改写SouiDllWizard.vsz
+			{
+				_tcscpy(szFrom, pCfg->strEntrySrc);
+				_tcscat(szFrom, _T("\\SouiDllWizard.vsz"));
+				_tcscpy(szTo, pCfg->strVsDir);
+				_tcscat(szTo, pCfg->strEntryTarget);
+				_tcscat(szTo, _T("\\Soui\\SouiDllWizard.vsz"));
+
+				CopyFile(szFrom, szTo, FALSE);
+
+				FILE *f = _tfopen(szTo, _T("r"));
+				if (f)
+				{
+					char szBuf[4096];
+					int nReaded = fread(szBuf, 1, 4096, f);
+					szBuf[nReaded] = 0;
+					fclose(f);
+
+					f = _tfopen(szTo, _T("w"));
+					if (f)
+					{//清空原数据再重新写入新数据
+						CStringA str = szBuf;
+						str.Replace("%SOUIPATH%", CT2A(szSouiDir));
+						fwrite((LPCSTR)str, 1, str.GetLength(), f);
+						fclose(f);
+					}
 				}
 			}
 
@@ -277,18 +362,41 @@ public:
 
 			VSENVCFG *pCfg=(VSENVCFG*)vslist.GetItemData(i);
             //remove entry files
-            CString strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\SouiWizard.ico");
+            CString strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\Soui\\SouiWizard.ico");
             BOOL bOK = DeleteFile(strSource);
             if(bOK)
             {
-                strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\SouiWizard.vsdir");
+                strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\Soui\\SouiWizard.vsdir");
                 bOK = DeleteFile(strSource);
             }
             if(bOK)
             {
-                strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\SouiWizard.vsz");
+                strSource=pCfg->strVsDir+pCfg->strEntryTarget+_T("\\Soui\\SouiWizard.vsz");
                 bOK = DeleteFile(strSource);
             }
+			// 删除Dll向导文件
+			if (bOK)
+			{
+				strSource = pCfg->strVsDir + pCfg->strEntryTarget + _T("\\Soui\\SouiDllWizard.ico");
+				bOK = DeleteFile(strSource);
+			}
+			if (bOK)
+			{
+				strSource = pCfg->strVsDir + pCfg->strEntryTarget + _T("\\Soui\\SouiDllWizard.vsdir");
+				bOK = DeleteFile(strSource);
+			}
+			if (bOK)
+			{
+				strSource = pCfg->strVsDir + pCfg->strEntryTarget + _T("\\Soui\\SouiDllWizard.vsz");
+				bOK = DeleteFile(strSource);
+			}
+
+			// 删除Soui目录
+			if (bOK)
+			{
+				strSource = pCfg->strVsDir + pCfg->strEntryTarget + _T("\\Soui");
+				bOK = RemoveDirectory(strSource);
+			}
 
 			CString strMsg;
 			strMsg.Format(_T("从%s中卸载SOUI向导%s"),pCfg->strName,bOK?_T("成功"):_T("失败"));
@@ -303,4 +411,8 @@ public:
 		EndDialog(wID);
 		return 0;
 	}
+// 	BEGIN_MSG_MAP(CMainDlg)
+// 		COMMAND_ID_HANDLER(IDC_INSTALL, BN_CLICKED, OnBnClickedInstall)
+// 	END_MSG_MAP()
+	LRESULT OnBnClickedInstall(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };

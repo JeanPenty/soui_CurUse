@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <language name="ch" guid="{0DAEDE3C-6B94-4a81-9A55-C304FDD69D98}">
+  <fonts>
+    <!--定义字体更新策略, name是在布局中定义的字体的name属性，这里可以修改字体的字符集及字体名-->
+    <font name="default" charset="GBK" face="宋体"/>
+    <font name="test" charset="GBK" face="隶书"/>
+  </fonts>
   <context>
     <!--没有上下文的翻译及字符串表的翻译-->
     <message>
       <source>soui demo</source>
       <translation>SOUI演示</translation>
     </message>
+
+   
   </context>
   <context name="editmenu">
     <message>
@@ -45,7 +52,7 @@
       <translation>关闭窗口</translation>
     </message>
     <message>
-      <source>language</source>
+      <source>语言</source>
       <translation>语言</translation>
     </message>
     <message>
@@ -89,6 +96,10 @@
       <translation>页面3</translation>
     </message>
     <message>
+      <source>page4</source>
+      <translation>页面4</translation>
+    </message>
+    <message>
       <source>menu</source>
       <translation>菜单</translation>
     </message>
@@ -120,11 +131,32 @@
       <source>unknown</source>
       <translation>人妖</translation>
     </message>
+
+    <message>
+      <source>Impotment</source>
+      <translation>重点标记</translation>
+    </message>
+
+    <message>
+      <source>Normal</source>
+      <translation>普通标记</translation>
+    </message>
+
+    <message>
+      <source>Flag</source>
+      <translation>标记</translation>
+    </message>
   </context>
   <context name="user">
     <message>
       <source>test input</source>
       <translation>用户自定义输入</translation>
     </message>
+
+    <message>
+      <source>editwindow</source>
+      <translation>编辑窗口</translation>
+    </message>
+
   </context>
 </language>

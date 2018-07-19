@@ -1,4 +1,4 @@
-#include "souistd.h"
+ï»¿#include "souistd.h"
 #include "helper/STileViewItemLocator.h"
 
 namespace SOUI
@@ -6,18 +6,34 @@ namespace SOUI
 //////////////////////////////////////////////////////////////////////////
 // STileViewItemLocatorFix
 STileViewItemLocator::STileViewItemLocator(int nItemHei, int nItemWid, int nMarginSize /*= 0*/) :
-    m_nItemHeight(nItemHei),
-    m_nItemWidth(nItemWid),
-    m_nItemMargin(nMarginSize),
-    m_nTileViewWidth(0),
+    m_nItemHeight((float)nItemHei, SLayoutSize::px),
+    m_nItemWidth((float)nItemWid, SLayoutSize::px),
+    m_nItemMargin((float)nMarginSize, SLayoutSize::px),
+    m_nTileViewWidth(0.f, SLayoutSize::px),
     m_nCountInRow(1)
 {
 
 }
 
+STileViewItemLocator::STileViewItemLocator(LPCWSTR szItemHei, LPCWSTR szItemWid, SLayoutSize marginSize) :
+    m_nItemHeight(SLayoutSize::fromString(szItemHei)),
+    m_nItemWidth(SLayoutSize::fromString(szItemWid)),
+    m_nItemMargin(marginSize),
+    m_nTileViewWidth(0, SLayoutSize::px),
+    m_nCountInRow(1),
+    m_scale(100)
+{
+}
+
 int STileViewItemLocator::GetScrollLineSize() const
 {
     return GetItemLineHeight();
+}
+
+int STileViewItemLocator::SetScale(int scale)
+{
+    m_scale = scale;
+    return 0;
 }
 
 int STileViewItemLocator::Position2Item(int position)
@@ -51,7 +67,7 @@ int STileViewItemLocator::GetTotalHeight()
         return 0;
     }
     int row_count = (m_adapter->getCount() - 1) / m_nCountInRow + 1;
-    return GetItemLineHeight() * row_count +  m_nItemMargin;
+    return GetItemLineHeight() * row_count + m_nItemMargin.toPixelSize(m_scale);
 }
 
 void STileViewItemLocator::SetItemHeight(int iItem, int nHeight)
@@ -60,7 +76,7 @@ void STileViewItemLocator::SetItemHeight(int iItem, int nHeight)
 
 int STileViewItemLocator::GetItemHeight(int iItem) const
 {
-    return m_nItemHeight;
+    return m_nItemHeight.toPixelSize(m_scale);
 }
 
 void STileViewItemLocator::SetAdapter(ILvAdapter *pAdapter)
@@ -70,22 +86,29 @@ void STileViewItemLocator::SetAdapter(ILvAdapter *pAdapter)
 
 CRect STileViewItemLocator::GetItemRect(int iItem)
 {
-    //·µ»ØÏà¶ÔÓÚTileViewÄÚ²¿µÄRect
+    //è¿”å›žç›¸å¯¹äºŽTileViewå†…éƒ¨çš„Rect
     int nRowIdx, nColIdx;
     GetItemRowAndColIndex(iItem, nRowIdx, nColIdx);
     
     CRect rect;
-    rect.left = m_nItemMargin + nColIdx * (m_nItemWidth + m_nItemMargin);
-    rect.top = m_nItemMargin + nRowIdx * (m_nItemHeight + m_nItemMargin);
-    rect.right = rect.left + m_nItemWidth;
-    rect.bottom = rect.top + m_nItemHeight;
+    rect.left = m_nItemMargin.toPixelSize(m_scale) + nColIdx * (m_nItemWidth.toPixelSize(m_scale) + m_nItemMargin.toPixelSize(m_scale));
+    rect.top = m_nItemMargin.toPixelSize(m_scale) + nRowIdx * (m_nItemHeight.toPixelSize(m_scale) + m_nItemMargin.toPixelSize(m_scale));
+    rect.right = rect.left + m_nItemWidth.toPixelSize(m_scale);
+    rect.bottom = rect.top + m_nItemHeight.toPixelSize(m_scale);
     return rect;
+}
+
+void STileViewItemLocator::SetTileViewWidth(LPCWSTR width)
+{
+    m_nTileViewWidth = SLayoutSize::fromString(width);
+    m_nCountInRow = m_nTileViewWidth.toPixelSize(m_scale) / (m_nItemWidth.toPixelSize(m_scale) + m_nItemMargin.toPixelSize(m_scale));
+    if(m_nCountInRow == 0) m_nCountInRow=1;
 }
 
 void STileViewItemLocator::SetTileViewWidth(int width)
 {
-    m_nTileViewWidth = width;
-    m_nCountInRow = m_nTileViewWidth / (m_nItemWidth + m_nItemMargin);
+    m_nTileViewWidth.setSize((float)width, SLayoutSize::px);
+    m_nCountInRow = m_nTileViewWidth.toPixelSize(m_scale) / (m_nItemWidth.toPixelSize(m_scale) + m_nItemMargin.toPixelSize(m_scale));
     if(m_nCountInRow == 0) m_nCountInRow=1;
 }
 
@@ -107,7 +130,7 @@ BOOL STileViewItemLocator::IsLastInRow(int iItem)
 int STileViewItemLocator::GetUpItem(int iItem)
 {
     int up_idx = iItem - m_nCountInRow;
-    //Ã»ÓÐÉÏÒ»ÐÐÁË£¬·µ»ØÔ­Öµ
+    //æ²¡æœ‰ä¸Šä¸€è¡Œäº†ï¼Œè¿”å›žåŽŸå€¼
     return up_idx < 0 ? iItem : up_idx;
 }
 
@@ -120,10 +143,10 @@ int STileViewItemLocator::GetDownItem(int iItem)
     }
     else if((m_adapter->getCount() - 1) / m_nCountInRow == iItem / m_nCountInRow)
     {
-        //Ã»ÓÐÏÂÒ»ÐÐÁË£¬·µ»ØÔ­Öµ
+        //æ²¡æœ‰ä¸‹ä¸€è¡Œäº†ï¼Œè¿”å›žåŽŸå€¼
         return iItem;
     }
-    //ÓÐÏÂÒ»ÐÐ£¬µ«Í¬Ò»ÁÐÃ»ÓÐÔªËØ£¬·µ»ØÏÂÒ»ÐÐ×îºóÒ»¸öÔªËØ
+    //æœ‰ä¸‹ä¸€è¡Œï¼Œä½†åŒä¸€åˆ—æ²¡æœ‰å…ƒç´ ï¼Œè¿”å›žä¸‹ä¸€è¡Œæœ€åŽä¸€ä¸ªå…ƒç´ 
     return m_adapter->getCount() - 1;
 }
 

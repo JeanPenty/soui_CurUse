@@ -5,6 +5,7 @@ include_directories(${PROJECT_SOURCE_DIR}/components)
 include_directories(${PROJECT_SOURCE_DIR}/utilities/include)
 include_directories(${PROJECT_SOURCE_DIR}/SOUI/include)
 include_directories(${PROJECT_SOURCE_DIR}/third-part)
+include_directories(${PROJECT_SOURCE_DIR}/third-part/stdint)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 link_directories(${PROJECT_SOURCE_DIR}/third-part/vlc/lib)
 
@@ -28,8 +29,9 @@ add_executable(FrogPlay WIN32 ${CURRENT_HEADERS} ${CURRENT_SRCS} ${CURRENT_SOUIS
 set_target_properties(FrogPlay PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 
-add_dependencies(FrogPlay soui-sys-resource ${COM_LIBS})
-target_link_libraries(FrogPlay soui utilities libvlc libvlccore)
+add_dependencies(FrogPlay soui-sys-resource)
+target_link_libraries(FrogPlay soui utilities ${COM_LIBS} libvlc libvlccore)
 set_target_properties (FrogPlay PROPERTIES
     FOLDER demos
 )
+cotire(FrogPlay)

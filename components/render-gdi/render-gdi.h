@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include <helper/color.h>
 #include <unknown/obj-ref-impl.hpp>
@@ -32,6 +32,11 @@ namespace SOUI
         virtual BOOL CreateBitmap(IBitmap ** ppBitmap);
         virtual BOOL CreateRegion(IRegion **ppRgn);
 
+		virtual BOOL CreatePath(IPath ** ppPath);
+
+		virtual BOOL CreatePathEffect(REFGUID guidEffect,IPathEffect ** ppPathEffect);
+		
+		virtual BOOL CreatePathMeasure(IPathMeasure ** ppPathMeasure);
     protected:
         CAutoRefPtr<IImgDecoderFactory> m_imgDecoderFactory;
     };
@@ -128,6 +133,15 @@ namespace SOUI
         virtual BOOL IsItalic(){return m_lf.lfItalic;}
         virtual BOOL IsStrikeOut(){return m_lf.lfStrikeOut;}
 
+		virtual BOOL UpdateFont(const LOGFONT *pLogFont)
+		{
+			if(!m_hFont) return FALSE;
+			DeleteObject(m_hFont);
+			memcpy(&m_lf,pLogFont,sizeof(LOGFONT));
+			m_hFont = CreateFontIndirect(&m_lf);
+			return TRUE;
+		}
+
         HFONT GetFont(){return m_hFont;}
     protected:
         LOGFONT     m_lf;
@@ -199,7 +213,7 @@ namespace SOUI
         virtual UINT Height() const;
         virtual SIZE Size() const;
         virtual LPVOID  LockPixelBits();
-        virtual void    UnlockPixelBits(LPVOID);
+        virtual void    UnlockPixelBits(LPVOID pBuf);
         virtual const LPVOID GetPixelBits() const;
         
         HBITMAP  GetBitmap(){return m_hBmp;}
@@ -209,7 +223,7 @@ namespace SOUI
 
         HRESULT ImgFromDecoder(IImgX *imgDecoder);
         SIZE        m_sz;
-        HBITMAP     m_hBmp;     //±Í◊ºµƒ32ŒªŒªÕº£¨∫Õm_bitmapπ≤œÌƒ⁄¥Ê
+        HBITMAP     m_hBmp;     //Ê†áÂáÜÁöÑ32‰Ωç‰ΩçÂõæÔºåÂíåm_bitmapÂÖ±‰∫´ÂÜÖÂ≠ò
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -256,7 +270,7 @@ namespace SOUI
         SRenderTarget_GDI(IRenderFactory* pRenderFactory,int nWid,int nHei);
         ~SRenderTarget_GDI();
 
-        //÷ª÷ß≥÷¥¥Ω®ŒªÕº±Ì√Ê
+        //Âè™ÊîØÊåÅÂàõÂª∫‰ΩçÂõæË°®Èù¢
         virtual HRESULT CreateCompatibleRenderTarget(SIZE szTarget,IRenderTarget **ppRenderTarget);
 
         virtual HRESULT CreatePen(int iStyle,COLORREF cr,int cWidth,IPen ** ppPen);
@@ -344,7 +358,7 @@ namespace SOUI
         virtual HRESULT QueryInterface(REFGUID iid,IObjRef ** ppObj){
 			(iid);
 			(ppObj);
-			return E_NOTIMPL;
+			return E_NOINTERFACE;
 		}
 
         virtual HRESULT SetTransform(const IxForm * pXForm,IxForm *pOldXFrom=NULL);
@@ -358,7 +372,12 @@ namespace SOUI
 		virtual HRESULT GradientFill2(LPCRECT pRect,GradientType type,COLORREF crStart,COLORREF crCenter,COLORREF crEnd,float fLinearAngle,float fCenterX,float fCenterY,int nRadius,BYTE byAlpha=0xff);
 
 		virtual HRESULT CreateRegion( IRegion ** ppRegion );
-    protected:
+
+		virtual HRESULT ClipPath(const IPath * path, UINT mode, bool doAntiAlias = false);
+
+		virtual HRESULT DrawPath(const IPath * path,IPathEffect * pathEffect=NULL);
+
+	protected:
         HDC               m_hdc;
         SColor            m_curColor;
         CAutoRefPtr<SBitmap_GDI> m_curBmp;
@@ -367,7 +386,7 @@ namespace SOUI
         CAutoRefPtr<SFont_GDI> m_curFont;
         POINT               m_ptOrg;
         
-        //◊¢“‚±£¥Ê4∏ˆƒ¨»œµƒGDI∂‘œÛ
+        //Ê≥®ÊÑè‰øùÂ≠ò4‰∏™ÈªòËÆ§ÁöÑGDIÂØπË±°
         CAutoRefPtr<IBitmap> m_defBmp;
         CAutoRefPtr<IPen> m_defPen;
         CAutoRefPtr<IBrush> m_defBrush;

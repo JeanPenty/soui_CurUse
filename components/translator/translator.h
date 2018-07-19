@@ -1,4 +1,4 @@
-// The following ifdef block is the standard way of creating macros which make exporting 
+﻿// The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the TRANSLATOR_EXPORTS
 // symbol defined on the command line. this symbol should not be defined on any project
 // that uses this DLL. This way any other project whose source files include this file see 
@@ -24,9 +24,16 @@ namespace SOUI
         LD_COMPILEDDATA,
     };
 
+		struct TrFontInfo{
+			BYTE lfCharset;
+			SStringT strFaceName;
+		};
+
+
     class STranslator : public TObjRefImpl<ITranslator>
     {
         friend class STranslatorMgr;
+
     public:
         STranslator();
         ~STranslator();
@@ -36,12 +43,17 @@ namespace SOUI
         virtual SStringW name();
         virtual GUID     guid();
         virtual BOOL tr(const SStringW & strSrc,const SStringW & strCtx,SStringW & strRet);
+		virtual BOOL updateLogfont(const SStringW & strName,LOGFONT *pFont);
+		virtual BYTE charsetFromString(const SStringW & strCharset) const;
     protected:
         BOOL LoadFromXml(pugi::xml_node xmlLang);
+
+
 
         SStringW m_strLang;
         GUID     m_guid;
         SArray<SStrMapEntry*> * m_arrEntry;
+		SMap<SStringW,TrFontInfo> m_mapFonts;//字体替换信息
     };
 
     class STranslatorMgr : public TObjRefImpl<ITranslatorMgr>
@@ -60,6 +72,8 @@ namespace SOUI
 		BOOL UninstallTranslator(REFGUID id);
 
 		SStringW tr(const SStringW & strSrc,const SStringW & strCtx);
+
+		BOOL updateLogfont(const SStringW & strName,LOGFONT * pfont);
 
 
 	protected:

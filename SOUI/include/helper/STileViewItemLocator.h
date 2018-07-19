@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 namespace SOUI
 {
@@ -6,6 +6,7 @@ class SOUI_EXP STileViewItemLocator : public TObjRefImpl<IObjRef>
 {
 public:
     STileViewItemLocator(int nItemHei, int nItemWid, int nMarginSize = 0);
+    STileViewItemLocator(LPCWSTR szItemHei, LPCWSTR szItemWid, SLayoutSize marginSize = SLayoutSize());
     
     void SetAdapter(ILvAdapter *pAdapter);
     
@@ -14,21 +15,22 @@ public:
     int GetItemHeight(int iItem) const;
     void SetItemHeight(int iItem, int nHeight);
     
-    //»ñÈ¡itemµÄCRect(Ïà¶ÔÓÚTileView)
+    //è·å–itemçš„CRect(ç›¸å¯¹äºTileView)
     CRect GetItemRect(int iItem);
     
-    //ÉèÖÃTileView¿í¶È£¨ÔÚTileViewµÄOnSizeÖĞµ÷ÓÃ£©
+    //è®¾ç½®TileViewå®½åº¦ï¼ˆåœ¨TileViewçš„OnSizeä¸­è°ƒç”¨ï¼‰
+    void SetTileViewWidth(LPCWSTR width);
     void SetTileViewWidth(int width);
     
-    //»ñÈ¡itemµÄĞĞ¡¢ÁĞÎ»ÖÃ
+    //è·å–itemçš„è¡Œã€åˆ—ä½ç½®
     void GetItemRowAndColIndex(int iItem, int &row, int &col);
     
-    //ÊÇ·ñÎªÃ¿ĞĞµÄ×îºóÒ»¸öÔªËØ
+    //æ˜¯å¦ä¸ºæ¯è¡Œçš„æœ€åä¸€ä¸ªå…ƒç´ 
     BOOL IsLastInRow(int iItem);
     
-    //»ñÈ¡ÉÏÒ»ĞĞ£¬Í¬Ò»ÁĞµÄÔªËØindex
+    //è·å–ä¸Šä¸€è¡Œï¼ŒåŒä¸€åˆ—çš„å…ƒç´ index
     int GetUpItem(int iItem);
-    //»ñÈ¡ÏÂÒ»ĞĞ£¬Í¬Ò»ÁĞµÄÔªËØindex
+    //è·å–ä¸‹ä¸€è¡Œï¼ŒåŒä¸€åˆ—çš„å…ƒç´ index
     int GetDownItem(int iItem);
     
     int GetTotalHeight();
@@ -40,21 +42,28 @@ public:
     
     int GetMarginSize() const
     {
-        return m_nItemMargin;
+        return m_nItemMargin.toPixelSize(m_scale);
     }
+
+    int SetScale(int scale);
     
 protected:
-    //ĞĞ¸ß£¨°üÀ¨¼ä¸ô£©
+    //è¡Œé«˜ï¼ˆåŒ…æ‹¬é—´éš”ï¼‰
     int GetItemLineHeight() const
     {
-        return m_nItemHeight + m_nItemMargin;
+        return m_nItemHeight.toPixelSize(m_scale) + m_nItemMargin.toPixelSize(m_scale);
     }
-    
-    int m_nItemWidth;      //item¿í
-    int m_nItemHeight;     //item¸ß
-    int m_nTileViewWidth;  //TileView¿í¶È£¨ÓÃÓÚ¼ÆËãm_nCountInRow£©
-    int m_nItemMargin;     //¿é¼ä¾à
-    int m_nCountInRow;     //Ã¿ĞĞµÄitem¸öÊı
+
+    int m_scale;
+    SLayoutSize m_nItemWidth;      //itemå®½
+    SLayoutSize m_nItemHeight;     //itemé«˜
+    SLayoutSize m_nTileViewWidth;  //TileViewå®½åº¦ï¼ˆç”¨äºè®¡ç®—m_nCountInRowï¼‰
+    SLayoutSize m_nItemMargin;     //å—é—´è·
+    //int m_nItemWidth;      //itemå®½
+    //int m_nItemHeight;     //itemé«˜
+    //int m_nTileViewWidth;  //TileViewå®½åº¦ï¼ˆç”¨äºè®¡ç®—m_nCountInRowï¼‰
+    //int m_nItemMargin;     //å—é—´è·
+    int m_nCountInRow;     //æ¯è¡Œçš„itemä¸ªæ•°
     
     CAutoRefPtr<ILvAdapter> m_adapter;
 };

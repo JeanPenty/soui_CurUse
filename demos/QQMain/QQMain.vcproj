@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="QQMain"
-	ProjectGUID="{B4573D6E-D8E6-35B2-9323-15FE207EFB52}"
+	ProjectGUID="{FF220714-BAE7-39C6-B575-6A023B216EC2}"
 	Keyword="Qt4VSv1.0">
 	<Platforms>
 		<Platform
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".,.,..\..\utilities\include,..\..\soui\include,..\..\components,..\..\config,..\..\tools\mkspecs\win32-msvc2008"
-				AdditionalOptions="/MP -w34100 -w34189 -w44996"
+				AdditionalOptions="/MP"
 				AssemblerListingLocation="..\..\obj\release\QQMain\"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4100,4101,4102,4189,4996"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".,.,..\..\utilities\include,..\..\soui\include,..\..\components,..\..\config,..\..\tools\mkspecs\win32-msvc2008"
-				AdditionalOptions="/MP -w34100 -w34189 -w44996"
+				AdditionalOptions="/MP"
 				AssemblerListingLocation="..\..\obj\debug\QQMain\"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4100,4101,4102,4189,4996"
@@ -146,6 +146,8 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="ui\ChooseAvatar.cpp" />
+			<File
 				RelativePath="ui\drag\DragWnd.cpp" />
 			<File
 				RelativePath="ui\adapter\FirendListItemAdapter.cpp" />
@@ -160,6 +162,8 @@
 			<File
 				RelativePath="ui\SHeaderCtrlEx.cpp" />
 			<File
+				RelativePath="ui\SProfilePicture.cpp" />
+			<File
 				RelativePath="ui\SToggleEx.cpp" />
 			<File
 				RelativePath="ui\adapter\SimpleListDef.cpp" />
@@ -171,7 +175,11 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="ui\ChooseAvatar.h" />
+			<File
 				RelativePath="ui\drag\DragWnd.h" />
+			<File
+				RelativePath="ui\FileHelper.h" />
 			<File
 				RelativePath="ui\adapter\FirendListItemAdapter.h" />
 			<File
@@ -185,13 +193,15 @@
 			<File
 				RelativePath="ui\adapter\NodeMgr.h" />
 			<File
-				RelativePath="res\R.h" />
-			<File
 				RelativePath="ui\SHeaderCtrlEx.h" />
+			<File
+				RelativePath="ui\SProfilePicture.h" />
 			<File
 				RelativePath="ui\SToggleEx.h" />
 			<File
 				RelativePath="ui\adapter\SimpleListDef.h" />
+			<File
+				RelativePath="res\resource.h" />
 			<File
 				RelativePath="resource.h" />
 			<File

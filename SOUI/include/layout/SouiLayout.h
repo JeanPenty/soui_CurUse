@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "interface/slayout-i.h"
 #include "SouiLayoutParamStruct.h"
 
@@ -55,31 +55,25 @@ namespace SOUI{
         SOUI_ATTRS_BREAK()
 
     protected:
-        //½«×Ö·û´®ÃèÊöµÄ×ø±ê×ª»»³ÉPOSITION_ITEM
+        //å°†å­—ç¬¦ä¸²æè¿°çš„åæ ‡è½¬æ¢æˆPOSITION_ITEM
         BOOL StrPos2ItemPos(const SStringW &strPos,POS_INFO & posItem);
 
-        //½âÎöÔÚposÖĞ¶¨ÒåµÄÇ°Á½¸öÎ»ÖÃ
+        //è§£æåœ¨posä¸­å®šä¹‰çš„å‰ä¸¤ä¸ªä½ç½®
         BOOL ParsePosition12(const SStringW & pos1, const SStringW &pos2);
 
-        //½âÎöÔÚposÖĞ¶¨ÒåµÄºóÁ½¸öÎ»ÖÃ
+        //è§£æåœ¨posä¸­å®šä¹‰çš„åä¸¤ä¸ªä½ç½®
         BOOL ParsePosition34(const SStringW & pos3, const SStringW &pos4);
 
 
 	};
 
-	class SouiLayout: public SObjectImpl<TObjRefImpl<ILayout>>
+	class SOUI_EXP SouiLayout: public SObjectImpl<TObjRefImpl<ILayout>>
 	{
 		SOUI_CLASS_NAME_EX(SouiLayout,L"SouiLayout",Layout)
 
 	public:
 		SouiLayout(void);
 		~SouiLayout(void);
-
-		static HRESULT CreateLayout(IObjRef ** ppObj);
-
-		static HRESULT CreateLayoutParam(IObjRef ** ppObj);
-
-		virtual LayoutType GetLayoutType() const {return Layout_Soui;}
 
         virtual bool IsParamAcceptable(ILayoutParam *pLayoutParam) const;
 

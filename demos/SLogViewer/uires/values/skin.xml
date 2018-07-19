@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<skin>
+  <imglist name="skin_btn_menu"	src="img:btn_menu" states="3"/>
+</skin>

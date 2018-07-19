@@ -1,4 +1,4 @@
-#include "souistd.h"
+ï»¿#include "souistd.h"
 #include "layout\SLinearLayout.h"
 #include "helper\SplitString.h"
 #include <algorithm>
@@ -71,7 +71,7 @@ namespace SOUI
         case Any: 
         case Both:
         default:
-            SASSERT_FMTA(FALSE,"GetSpecifiedSize can only be applyed for Horz or Vert");
+            SASSERT_FMTA(FALSE,"GetSpecifiedSize can only be applied for Horz or Vert");
             return SLayoutSize();
         }
     }
@@ -113,7 +113,7 @@ namespace SOUI
 	HRESULT SLinearLayoutParam::OnAttrExtend(const SStringW & strValue,BOOL bLoading)
 	{
 		SStringWList strList;
-		int nSeg = SplitString(strValue,L',',strList);
+		size_t nSeg = SplitString(strValue,L',',strList);
 		if(nSeg==1)
 		{
 			extend_left.parseString(strList[0]);
@@ -393,9 +393,9 @@ namespace SOUI
 			{
                 int nWid = szChild.cx, nHei = szChild.cy;
                 if(nWid == SIZE_WRAP_CONTENT)
-                    nWid = nWidth * pParentLayoutParam->IsWrapContent(Horz)?-1:1; //°Ñ¸¸´°¿ÚµÄWrapContentÊôÐÔÍ¨¹ý-1±êÖ¾´«µÝ¸øGetDesiredSize
+                    nWid = nWidth * pParentLayoutParam->IsWrapContent(Horz)?-1:1; //æŠŠçˆ¶çª—å£çš„WrapContentå±žæ€§é€šè¿‡-1æ ‡å¿—ä¼ é€’ç»™GetDesiredSize
                 if(nHei == SIZE_WRAP_CONTENT)
-                    nHei = nHeight * pParentLayoutParam->IsWrapContent(Vert)?-1:1;//°Ñ¸¸´°¿ÚµÄWrapContentÊôÐÔÍ¨¹ý-1±êÖ¾´«µÝ¸øGetDesiredSize
+                    nHei = nHeight * pParentLayoutParam->IsWrapContent(Vert)?-1:1;//æŠŠçˆ¶çª—å£çš„WrapContentå±žæ€§é€šè¿‡-1æ ‡å¿—ä¼ é€’ç»™GetDesiredSize
 
 				CSize szCalc = pChild->GetDesiredSize(nWid,nHei);
 				if(szChild.cx == SIZE_WRAP_CONTENT) 
@@ -440,15 +440,7 @@ namespace SOUI
 
 	ILayoutParam * SLinearLayout::CreateLayoutParam() const
 	{
-		SLinearLayoutParam *pRet = NULL;
-		CreateLayoutParam((IObjRef**)&pRet);
-		return pRet;
-	}
-
-	HRESULT SLinearLayout::CreateLayoutParam(IObjRef ** ppObj)
-	{
-		*ppObj = new SLinearLayoutParam();
-		return S_OK;
+		return new SLinearLayoutParam();
 	}
 
 }
